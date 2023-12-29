@@ -14,8 +14,8 @@ from sklearn.model_selection import train_test_split
 from flaml import AutoML
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-plt.rcParams["text.usetex"]=True
-plt.rcParams["text.latex.preamble"]=r"\usepackage{amsmath}\boldmath"
+#plt.rcParams["text.usetex"]=True
+#plt.rcParams["text.latex.preamble"]=r"\usepackage{amsmath}\boldmath"
 url = 'https://raw.githubusercontent.com/ccakiroglu/bond/main/Bond2.xlsm'
 df = pd.read_excel(url, header=0, sheet_name='regression')
 x, y = df.iloc[:, :-1], df.iloc[:, -1]
@@ -90,8 +90,8 @@ for c in y_test:
     f.write(str(c)+"\n")
 f.close();
 fig, ax=plt.subplots()
-ax.scatter(yhat_train, y_train, color='blue',label=r'$\mathbf{XGBoost\text{ }train}$')
-ax.scatter(yhat_test, y_test, color='red',label=r'$\mathbf{XGBoost\text{ }test}$')
+ax.scatter(yhat_train, y_train, color='blue',label='XGBoost train')
+ax.scatter(yhat_test, y_test, color='red',label='XGBoost test')
 #ax.scatter(yhat_train, y_train, color='seagreen',label=r'$\mathbf{CatBoost\text{ }train}$')
 #ax.scatter(yhat_test, y_test, color='coral',label=r'$\mathbf{CatBoost\text{ }test}$')
 #ax.scatter(yhat_train, y_train, color='teal', label=r'$\mathbf{LightGBM\text{ }train}$')
@@ -99,8 +99,8 @@ ax.scatter(yhat_test, y_test, color='red',label=r'$\mathbf{XGBoost\text{ }test}$
 #ax.scatter(yhat_train, y_train, color='royalblue',label=r'$\mathbf{Random\text{ }Forest\text{ }train}$')
 #ax.scatter(yhat_test, y_test, color='gray',label=r'$\mathbf{Random\text{ }Forest\text{ }test}$')
 #ax.set_xticks([20,30,40,50,60,70])
-ax.set_xlabel(r'$\mathbf{f_{predicted}\text{ }[MPa]}$', fontsize=14)
-ax.set_ylabel(r'$\mathbf{f_{test}\text{ }[MPa]}$', fontsize=14)
+ax.set_xlabel('f,predicted [MPa]', fontsize=14)
+ax.set_ylabel('f,test [MPa]}$', fontsize=14)
 xmax=50;ymax=50;
 xk=[0,xmax];yk=[0,ymax];ykPlus10Perc=[0,ymax*1.1];ykMinus10Perc=[0,ymax*0.9];
 ax.tick_params(axis='x',labelsize=14)
@@ -120,7 +120,7 @@ def linearRegr(x,a0,a1):
 coeffs, covmat=curve_fit(f=linearRegr, xdata=np.concatenate((yhat_train,yhat_test)).flatten(),ydata=np.concatenate((y_train,y_test)).flatten())
 print(f"a0={coeffs[0]}, a1={coeffs[1]}")
 regr=linearRegr(xk,coeffs[0], coeffs[1])
-ax.plot(xk,regr, label=r"$\mathbf{y=-0.07+x}$")
+ax.plot(xk,regr, label="y=-0.07+x")
 plt.legend(loc='upper left',fontsize=12)
 #plt.show()
 st.pyplot(fig)
