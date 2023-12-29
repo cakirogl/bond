@@ -100,7 +100,7 @@ ax.scatter(yhat_test, y_test, color='red',label='XGBoost test')
 #ax.scatter(yhat_test, y_test, color='gray',label=r'$\mathbf{Random\text{ }Forest\text{ }test}$')
 #ax.set_xticks([20,30,40,50,60,70])
 ax.set_xlabel('f,predicted [MPa]', fontsize=14)
-ax.set_ylabel('f,test [MPa]}$', fontsize=14)
+ax.set_ylabel('f,test [MPa]', fontsize=14)
 xmax=50;ymax=50;
 xk=[0,xmax];yk=[0,ymax];ykPlus10Perc=[0,ymax*1.1];ykMinus10Perc=[0,ymax*0.9];
 ax.tick_params(axis='x',labelsize=14)
