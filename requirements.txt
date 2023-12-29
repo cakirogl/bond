@@ -2,3 +2,6 @@ seaborn
 catboost
 scikit-learn
 matplotlib
+xgboost
+lightgbm
+flaml
