@@ -24,7 +24,7 @@ scaler=MinMaxScaler()
 #contaminations=np.arange(0.00001,0.50001,0.02)
 #contaminations=[0.00001,0.02, 0.04, 0.06, 0.08,0.1, 0.18,0.30]
 contaminations=[0.04]
-model_selector = st.sidebar.selectbox('Model', ['XGBoost', 'LightGBM', 'CatBoost', 'Random Forest', 'Extra Tree'])
+model_selector = st.selectbox('Model', ['XGBoost', 'LightGBM', 'CatBoost', 'Random Forest'])
 for c in contaminations:
     model=IsolationForest(random_state=0, contamination=float(c));
     #model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(c),max_features=1.0)
@@ -43,12 +43,30 @@ for c in contaminations:
     #x_train = pipeline.fit_transform(x_train)
     #x_test = pipeline.transform(x_test)
     print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    if model_selector=='LightGBM':
+        model=LGBMRegressor(random_state=0, verbose=-1)
+        model.fit(x_train,y_train)
+        train_color="teal";test_color="fuchsia";eqn="-1.21+1.07x"
+    elif model_selector=='XGBoost':
+        model=XGBRegressor(random_state=0)
+        model.fit(x_train, y_train)
+        train_color="blue";test_color="red";eqn="-0.07+x"
+    elif model_selector=='CatBoost':
+        model=CatBoostRegressor(random_state=0, logging_level="Silent")
+        model.fit(x_train, y_train)
+        train_color="seagreen";test_color="coral";eqn="-0.9+1.05x"
+    elif model_selector=='Random Forest':
+        model=RandomForestRegressor(random_state=0, verbose=0)
+        model.fit(x_train,y_train)
+        train_color="royalblue";test_color="gray";eqn="-1.57+1.09x"
+    yhat_test = model.predict(x_test)
+    yhat_train = model.predict(x_train)
     #XGBModel=XGBRegressor(random_state=0)
     #XGBModel.fit(x_train, y_train)
     #CBModel=CatBoostRegressor(random_state=0, logging_level="Silent")
     #CBModel.fit(x_train, y_train)
-    LGBMModel=LGBMRegressor(random_state=0, verbose=-1)
-    LGBMModel.fit(x_train,y_train)
+    #LGBMModel=LGBMRegressor(random_state=0, verbose=-1)
+    #LGBMModel.fit(x_train,y_train)
     #RFModel=RandomForestRegressor(random_state=0, verbose=0)
     #RFModel.fit(x_train,y_train)
     automl = AutoML()
@@ -68,8 +86,8 @@ for c in contaminations:
     #yhat_train = XGBModel.predict(x_train)
     #yhat_test = CBModel.predict(x_test)
     #yhat_train = CBModel.predict(x_train)
-    yhat_test = LGBMModel.predict(x_test)
-    yhat_train = LGBMModel.predict(x_train)
+    #yhat_test = LGBMModel.predict(x_test)
+    #yhat_train = LGBMModel.predict(x_train)
     #yhat_test = RFModel.predict(x_test)
     #yhat_train = RFModel.predict(x_train)
     #yhat_test = automl.predict(x_test)
@@ -91,8 +109,10 @@ for c in y_test:
     f.write(str(c)+"\n")
 f.close();
 fig, ax=plt.subplots()
-ax.scatter(yhat_train, y_train, color='blue',label='XGBoost train')
-ax.scatter(yhat_test, y_test, color='red',label='XGBoost test')
+ax.scatter(yhat_train, y_train, color=train_color,label=model_selector+' train')
+ax.scatter(yhat_test, y_test, color=test_color,label=model_selector+' test')
+#ax.scatter(yhat_train, y_train, color='blue',label='XGBoost train')
+#ax.scatter(yhat_test, y_test, color='red',label='XGBoost test')
 #ax.scatter(yhat_train, y_train, color='seagreen',label=r'$\mathbf{CatBoost\text{ }train}$')
 #ax.scatter(yhat_test, y_test, color='coral',label=r'$\mathbf{CatBoost\text{ }test}$')
 #ax.scatter(yhat_train, y_train, color='teal', label=r'$\mathbf{LightGBM\text{ }train}$')
@@ -121,7 +141,7 @@ def linearRegr(x,a0,a1):
 coeffs, covmat=curve_fit(f=linearRegr, xdata=np.concatenate((yhat_train,yhat_test)).flatten(),ydata=np.concatenate((y_train,y_test)).flatten())
 print(f"a0={coeffs[0]}, a1={coeffs[1]}")
 regr=linearRegr(xk,coeffs[0], coeffs[1])
-ax.plot(xk,regr, label="y=-0.07+x")
+ax.plot(xk,regr, label=eqn)
 plt.legend(loc='upper left',fontsize=12)
 #plt.show()
 st.pyplot(fig)
