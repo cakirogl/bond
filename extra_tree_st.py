@@ -24,30 +24,58 @@ scaler=MinMaxScaler()
 #contaminations=np.arange(0.00001,0.50001,0.02)
 #contaminations=[0.00001,0.02, 0.04, 0.06, 0.08,0.1, 0.18,0.30]
 contaminations=[0.04]
-st.set_page_config(layout="wide")
-st.write("## Bond strength prediction")
-model_selector = st.selectbox('**Model**', ['XGBoost', 'LightGBM', 'CatBoost', 'Random Forest'])
+#st.set_page_config(layout="wide")
+#st.write("### Bond strength prediction")
+model_selector = st.selectbox('**Bond strength prediction model**', ['XGBoost', 'LightGBM', 'CatBoost', 'Random Forest'])
 input_container = st.container()
 output_container = st.container()
 ic1,ic2, ic3=input_container.columns(3)
 with ic1:
-    wc=st.text_input("**Water to cement ratio:**")
-    rca_perc=st.text_input("**Replacement percentage of RCA**")
+    wc=st.number_input("**Water to cement ratio:**",min_value=0.1,max_value=0.9,step=0.05,value=0.4)
+    rca_perc=st.number_input("**Replacement percentage of RCA:**",min_value=0.0,max_value=100.0,step=10.0,value=50.0)
     rebar_type=st.selectbox("**Rebar type**", ["Mild steel", "BFRP", "GFRP", "UHSS", "CFRP"])
+    if rebar_type=="Mild steel":
+        rebar_type=1
+    elif rebar_type=="BFRP":
+        rebar_type=3
+    elif rebar_type=="GFRP":
+        rebar_type=2
+    elif rebar_type=="UHSS":
+        rebar_type=5
+    elif rebar_type=="CFRP":
+        rebar_type=4
+
     rebar_e=st.text_input("**Rebar E module [GPa]**")
     embed_len=st.text_input("**Embedment length [mm]**")
 with ic2:
     abs_cap=st.text_input("**Absorption capacity:**")
     fc=st.text_input("**Compressive strength [MPa]:**")
     rebar_surface=st.selectbox("**Rebar surface**", ["Deformed", "Sand Coated", "Plain"])
-    rebar_d=st.text_input("**Rebar diameter [mm]**")
+    if rebar_surface=="Deformed":
+        rebar_surface=2
+    elif rebar_surface=="Sand Coated":
+        rebar_surface=3
+    elif rebar_surface=="Plain":
+        rebar_surface=1
+    rebar_d=st.number_input("**Rebar diameter [mm]**", min_value=8.0, max_value=25.2, value=10.0, step=1.0)
     spec_type=st.selectbox("**Specimen type**", ["Beam", "Cube", "Cylinder"])
+    if spec_type=="Beam":
+        spec_type=2
+    elif spec_type=="Cube":
+        spec_type=1
+    elif spec_type=="Cylinder":
+        spec_type=3
 with ic3:
     age=st.text_input("**Age [Days]:**")
     cover=st.text_input("**Cover [mm]:**")
     fy=st.text_input("**Rebar yield strength [MPa]:**")
     conf_effect=st.selectbox("**Confinement effect**", ["Yes", "No"])
-
+    if conf_effect=="Yes":
+        conf_effect=2
+    elif conf_effect=="No":
+        conf_effect=1
+    
+new_sample=np.array([[wc, rca_perc, abs_cap, fc, age, cover, rebar_type, rebar_surface, fy, rebar_e, rebar_d, conf_effect, embed_len, spec_type]],dtype=object)
 for c in contaminations:
     model=IsolationForest(random_state=0, contamination=float(c));
     #model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(c),max_features=1.0)
@@ -94,39 +122,27 @@ for c in contaminations:
         "time_budget": 7000,
         "log_file_name": "logs.txt"
     }
-    col1, col2, col3 = output_container.columns(3)
-    with col1:
-        st.write("**Training set**")
+    #col1, col2, col3 = output_container.columns(3)
+    #with col1:
+        #st.write("**Training set**")
         #st.write(f"Contamination = {c}")
         #st.write(f"The number of anomalies = {len(anomaly_index)}")
-        st.write(f"RMSE train = {np.sqrt(mean_squared_error(y_train, yhat_train))}")
-        st.write(f"MAE train = {mean_absolute_error(y_train, yhat_train)}")
-        st.write(f"R2 train = {r2_score(y_train, yhat_train)}")
-    with col2:
-        st.write("**Test set**")
-        st.write(f"RMSE = {np.sqrt(mean_squared_error(y_test, yhat_test))}")
-        st.write(f"MAE = {mean_absolute_error(y_test, yhat_test)}")
-        st.write(f"R2 = {r2_score(y_test, yhat_test)}")
-    print("Contamination = ",c);
-    print("The number of anomalies:", len(anomaly_index));
-    print('MSE train= ',mean_squared_error(y_train, yhat_train))
-    print('RMSE train= ',np.sqrt(mean_squared_error(y_train, yhat_train)))
-    print('MAE train= ',mean_absolute_error(y_train, yhat_train))
-    print('R2 train:',r2_score(y_train, yhat_train))
-    print('MSE test= ',mean_squared_error(y_test, yhat_test))
-    print('RMSE test= ',np.sqrt(mean_squared_error(y_test, yhat_test)))
-    print('MAE test= ',mean_absolute_error(y_test, yhat_test))
-    print('R2 test:',r2_score(y_test, yhat_test))#original
-    #scores = cross_val_score(CBmodel, x_train, y_train, cv=10)
-    #print(scores)
-#f=open("y_test.txt", "w")
-#for c in y_test:
-#    f.write(str(c)+"\n")
-#f.close();
+        #st.write(f"RMSE = {np.sqrt(mean_squared_error(y_train, yhat_train))}")
+        #st.write(f"MAE = {mean_absolute_error(y_train, yhat_train)}")
+        #st.write(f"R2 = {r2_score(y_train, yhat_train)}")
+    #with col2:
+        #st.write("**Test set**")
+        #st.write(f"RMSE = {np.sqrt(mean_squared_error(y_test, yhat_test))}")
+        #st.write(f"MAE = {mean_absolute_error(y_test, yhat_test)}")
+        #st.write(f"R2 = {r2_score(y_test, yhat_test)}")
+    
+
 fig, ax=plt.subplots()
-with col3:
-    ax.scatter(yhat_train, y_train, color=train_color,label=model_selector+' train')
-    ax.scatter(yhat_test, y_test, color=test_color,label=model_selector+' test')
+#with col3:
+with ic3:
+    st.write(f"**Bond strength = **{model.predict(new_sample)[0]:.2f}** MPa**")
+    #ax.scatter(yhat_train, y_train, color=train_color,label=model_selector+' train')
+    #ax.scatter(yhat_test, y_test, color=test_color,label=model_selector+' test')
 #ax.scatter(yhat_train, y_train, color='blue',label='XGBoost train')
 #ax.scatter(yhat_test, y_test, color='red',label='XGBoost test')
 #ax.scatter(yhat_train, y_train, color='seagreen',label=r'$\mathbf{CatBoost\text{ }train}$')
@@ -136,28 +152,28 @@ with col3:
 #ax.scatter(yhat_train, y_train, color='royalblue',label=r'$\mathbf{Random\text{ }Forest\text{ }train}$')
 #ax.scatter(yhat_test, y_test, color='gray',label=r'$\mathbf{Random\text{ }Forest\text{ }test}$')
 #ax.set_xticks([20,30,40,50,60,70])
-    ax.set_xlabel('f,predicted [MPa]', fontsize=14)
-    ax.set_ylabel('f,test [MPa]', fontsize=14)
-    xmax=50;ymax=50;
-    xk=[0,xmax];yk=[0,ymax];ykPlus10Perc=[0,ymax*1.1];ykMinus10Perc=[0,ymax*0.9];
-    ax.tick_params(axis='x',labelsize=14)
-    ax.tick_params(axis='y',labelsize=14)
-    ax.plot(xk,yk, color='black')
-    ax.plot(xk,ykPlus10Perc, dashes=[2,2], color='black')
-    ax.plot(xk,ykMinus10Perc,dashes=[2,2], color='black')
-    ax.grid(True)
-    ratio=1.0
-    xmin,xmax=ax.get_xlim()
-    ymin,ymax=ax.get_ylim()
-    ax.set_aspect(ratio*np.abs((xmax-xmin)/(ymax-ymin)));
+    #ax.set_xlabel('f,predicted [MPa]', fontsize=14)
+    #ax.set_ylabel('f,test [MPa]', fontsize=14)
+    #xmax=50;ymax=50;
+    #xk=[0,xmax];yk=[0,ymax];ykPlus10Perc=[0,ymax*1.1];ykMinus10Perc=[0,ymax*0.9];
+    #ax.tick_params(axis='x',labelsize=14)
+    #ax.tick_params(axis='y',labelsize=14)
+    #ax.plot(xk,yk, color='black')
+    #ax.plot(xk,ykPlus10Perc, dashes=[2,2], color='black')
+    #ax.plot(xk,ykMinus10Perc,dashes=[2,2], color='black')
+    #ax.grid(True)
+    #ratio=1.0
+    #xmin,xmax=ax.get_xlim()
+    #ymin,ymax=ax.get_ylim()
+    #ax.set_aspect(ratio*np.abs((xmax-xmin)/(ymax-ymin)));
 
     def linearRegr(x,a0,a1):
         return a0+a1 * np.array(x)
 
     coeffs, covmat=curve_fit(f=linearRegr, xdata=np.concatenate((yhat_train,yhat_test)).flatten(),ydata=np.concatenate((y_train,y_test)).flatten())
     print(f"a0={coeffs[0]}, a1={coeffs[1]}")
-    regr=linearRegr(xk,coeffs[0], coeffs[1])
-    ax.plot(xk,regr, label=eqn)
+    #regr=linearRegr(xk,coeffs[0], coeffs[1])
+    #ax.plot(xk,regr, label=eqn)
     plt.legend(loc='upper left',fontsize=12)
     #plt.show()
-    st.pyplot(fig)
+    #st.pyplot(fig)
