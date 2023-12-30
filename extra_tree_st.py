@@ -24,6 +24,7 @@ scaler=MinMaxScaler()
 #contaminations=np.arange(0.00001,0.50001,0.02)
 #contaminations=[0.00001,0.02, 0.04, 0.06, 0.08,0.1, 0.18,0.30]
 contaminations=[0.04]
+model_selector = st.sidebar.selectbox('Model', ['XGBoost', 'LightGBM', 'CatBoost', 'Random Forest', 'Extra Tree'])
 for c in contaminations:
     model=IsolationForest(random_state=0, contamination=float(c));
     #model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(c),max_features=1.0)
