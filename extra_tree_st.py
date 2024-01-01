@@ -45,11 +45,11 @@ with ic1:
     elif rebar_type=="CFRP":
         rebar_type=4
 
-    rebar_e=st.text_input("**Rebar E module [GPa]**")
-    embed_len=st.text_input("**Embedment length [mm]**")
+    rebar_e=st.number_input("**Rebar E module [GPa]**", min_value=20.0, max_value=250.0, value=50.0, step=10.0)
+    embed_len=st.number_input("**Embedment length [mm]**", min_value=20.0, max_value=500.0, value=150.0, step=10.0)
 with ic2:
-    abs_cap=st.text_input("**Absorption capacity:**")
-    fc=st.text_input("**Compressive strength [MPa]:**")
+    abs_cap=st.number_input("**Absorption capacity [%]:**", min_value=0.0, max_value=20.0, value=2.5, step=0.1)
+    fc=st.number_input("**Compressive strength [MPa]:**", min_value=10.0, max_value=100.0, value=25.0, step=5.0)
     rebar_surface=st.selectbox("**Rebar surface**", ["Deformed", "Sand Coated", "Plain"])
     if rebar_surface=="Deformed":
         rebar_surface=2
@@ -66,9 +66,9 @@ with ic2:
     elif spec_type=="Cylinder":
         spec_type=3
 with ic3:
-    age=st.text_input("**Age [Days]:**")
+    age=st.number_input("**Age [Days]:**", min_value=5.0, max_value=365.0, value=28.0, step=1.0)
     cover=st.text_input("**Cover [mm]:**")
-    fy=st.text_input("**Rebar yield strength [MPa]:**")
+    fy=st.number_input("**Rebar yield strength [MPa]:**", min_value=200.0, max_value=3000.0, value=500.0, step=10.0)
     conf_effect=st.selectbox("**Confinement effect**", ["Yes", "No"])
     if conf_effect=="Yes":
         conf_effect=2
