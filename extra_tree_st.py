@@ -67,7 +67,7 @@ with ic2:
         spec_type=3
 with ic3:
     age=st.number_input("**Age [Days]:**", min_value=5.0, max_value=365.0, value=28.0, step=1.0)
-    cover=st.text_input("**Cover [mm]:**")
+    cover=st.number_input("**Cover [mm]:**", min_value=10.0, max_value=300.0, value=50.0, step=10.0)
     fy=st.number_input("**Rebar yield strength [MPa]:**", min_value=200.0, max_value=3000.0, value=500.0, step=10.0)
     conf_effect=st.selectbox("**Confinement effect**", ["Yes", "No"])
     if conf_effect=="Yes":
